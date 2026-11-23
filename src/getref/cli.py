@@ -1,4 +1,4 @@
-"""Command-line interface: ``getref validate | run | review``."""
+"""Command-line interface: ``getref validate | run | pipeline | review``."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from pathlib import Path
 
 from .accommodation import format_table, review
 from .codebook import load_codebook
+from .pipeline import execute, load_pipeline
 from .providers import ProviderError, ReplayProvider, make_provider
 from .run import read_jsonl, run, select_units
 
@@ -40,6 +41,24 @@ def cmd_run(args) -> int:
     print(f"Outputs in {out_dir}")
     for code, n in counts.most_common():
         print(f"  {code}: {n}")
+    return 0
+
+
+def cmd_pipeline(args) -> int:
+    plan = load_pipeline(args.pipeline)
+    documents = read_jsonl(args.documents)
+    coder = None
+    if plan.codebook is not None and not args.no_code:
+        try:
+            provider = ReplayProvider(read_jsonl(args.replay)) if args.replay else make_provider(plan.codebook)
+        except ProviderError as error:
+            print(f"Skipping the coding step: {error}")
+        else:
+            def coder(codebook, units, out_dir):
+                return run(codebook, units, provider, root=out_dir, force=args.force)
+
+    out_dir = execute(plan, documents, root=args.runs, code=coder)
+    print(f"Plan {plan.hash()[:12]}: outputs in {out_dir}")
     return 0
 
 
@@ -82,6 +101,15 @@ def main(argv=None) -> int:
     p.add_argument("--limit", type=int, help="Code only the first N units (pilot run)")
     p.add_argument("--force", action="store_true", help="Recode units already coded under this snapshot")
     p.set_defaults(func=cmd_run)
+
+    p = sub.add_parser("pipeline", help="Run a declarative pipeline: segment, filter and code documents")
+    p.add_argument("pipeline", help="Pipeline definition (YAML)")
+    p.add_argument("documents", help="JSONL file of documents")
+    p.add_argument("--runs", default="runs", help="Output root (default: runs)")
+    p.add_argument("--replay", help="Recorded outputs.jsonl to replay instead of calling a model")
+    p.add_argument("--no-code", action="store_true", help="Segment and filter only")
+    p.add_argument("--force", action="store_true", help="Recode units already coded under this codebook")
+    p.set_defaults(func=cmd_pipeline)
 
     p = sub.add_parser("review", help="Reliability, agreed residual and Table 1 interpretation")
     p.add_argument("codebook")

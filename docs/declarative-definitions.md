@@ -70,6 +70,10 @@ steps:
     inputs: { record: $steps.classify.output }
 ```
 
+## A working miniature
+
+`pipelines/ai-discourse-uk-us.yaml` is a working miniature of this design, run by `src/getref/pipeline.py`. It has four steps: two speech segmenters, one for UK Hansard debates and one for the US Congressional Record; an AI-term filter; and a coding step that refers to a codebook. The filter keeps every speech in a section whose title contains an AI term, and elsewhere only speeches that mention one. The definition is validated when it is loaded, then frozen together with its codebook into a plan identified by a content hash, and outputs are written under that hash. It omits the full runtime's orchestration, storage and capability catalogue.
+
 ## Status
 
 An internal runtime for these definitions is in development in the authors' production system. A first classification pipeline already runs on parliamentary transcripts, using a decision model behind deterministic rules. The runtime itself is not part of this repository. Researcher-authored definitions, stored as validated and immutable versions, are planned for the hosted interface. See [scope and roadmap](scope-and-roadmap.md).

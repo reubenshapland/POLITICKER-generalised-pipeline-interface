@@ -6,7 +6,7 @@ The General Extraction Tool (GET) is the research infrastructure proposed in the
 
 The model never navigates or interprets a corpus. Each call receives exactly one text unit, such as a speech, together with the codebook, and returns one code. Every output is therefore tied to a specific, identifiable passage of source text, and can be checked by a human coder against that passage alone.
 
-*In this repository:* `getref run` sends one unit per call (`src/getref/run.py`).
+*In this repository:* `getref run` sends one unit per call (`src/getref/run.py`), and the demonstration pipeline first splits transcripts into speeches so that each unit is one contribution by one speaker (`src/getref/pipeline.py`).
 
 ## 2. A constrained answer space
 

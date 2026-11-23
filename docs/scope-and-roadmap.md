@@ -12,7 +12,7 @@ This repository is the proof of concept of its measurement core. It implements, 
 - per-output provenance
 - the accommodation review
 
-It runs on a public sample of parliamentary debate, so every step can be inspected and reproduced.
+It runs on public UK and US parliamentary transcripts, so every step can be inspected and reproduced.
 
 ## What is public and what is not
 
@@ -22,9 +22,10 @@ It runs on a public sample of parliamentary debate, so every step can be inspect
 | Model providers: a decision model via OpenRouter; any OpenAI-compatible endpoint, including local open-weight models | Yes |
 | Reliability, agreed residual and Table 1 interpretation | Yes |
 | Public sample of 40 units and the script that drew it | Yes |
+| 23 UK and US transcripts, the script that collected them, and a miniature declarative pipeline that segments, filters and codes them | Yes |
 | Example codebook (institutional pillars) | Yes |
 | Recorded model outputs for the sample | Yes, once recorded |
-| Description of the declarative pipeline definitions | Yes; the runtime is not included |
+| Description of the declarative pipeline definitions | Yes; the production runtime is not included |
 | Acquisition and parsing of the four legislatures' records | No |
 | Normalization, orchestration, storage and the production runtime | No |
 | The hosted interface | No; planned |

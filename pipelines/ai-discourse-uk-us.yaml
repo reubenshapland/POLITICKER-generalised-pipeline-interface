@@ -1,0 +1,33 @@
+# A miniature declarative pipeline. It processes one transcript at a time:
+# split it into speeches, keep the speeches relevant to AI, and code each
+# kept speech against a codebook. The definition contains no code; each step
+# names a registered strategy and its configuration.
+#
+# Run it with:
+#   getref pipeline pipelines/ai-discourse-uk-us.yaml data/transcripts.jsonl
+
+id: ai-discourse-uk-us
+version: 1
+description: >-
+  AI discourse in the UK Parliament and the US Congress, 2023 to 2025, coded
+  for the institutional pillar each speech invokes.
+unit: One transcript document (a UK Hansard debate or a US Congressional Record item).
+
+steps:
+  - id: segment_uk
+    strategy: segment.hansard_contributions
+
+  - id: segment_us
+    strategy: segment.congressional_record
+
+  - id: keep_ai_speeches
+    strategy: filter.ai_terms
+    config:
+      min_words: 20      # shorter speeches are procedural
+      max_words: 1500    # longer speeches are reduced to windows around AI mentions
+      window_words: 150  # words kept either side of each mention
+
+  - id: code_pillars
+    strategy: code.codebook
+    config:
+      codebook: codebooks/institutional-pillars-ai.yaml

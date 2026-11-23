@@ -1,0 +1,61 @@
+# Example codebook: the three pillars of institutions (Scott 2014) applied to
+# parliamentary debate on artificial intelligence.
+#
+# This is an illustrative codebook for the proof of concept. It is not the
+# confirmatory codebook for the study, which will be developed and versioned
+# through the human coding layer in Stage 2.
+#
+# Every codebook defines its constructs plus two reserved codes:
+#   residual      relevant to the phenomenon, but fits no construct
+#   not_relevant  not about the phenomenon
+# The agreed residual (units both human coders code as residual) is the
+# signal of theoretical misfit.
+
+id: institutional-pillars-ai
+version: 1
+title: Institutional pillars in AI regulation discourse
+theory: >-
+  Scott, W. R. (2014). Institutions and Organizations (4th ed.). Regulative,
+  normative and cultural-cognitive pillars.
+unit: One spoken contribution in a parliamentary debate.
+
+# Fields of each unit passed to the model as context.
+state_fields: [debate_title, text]
+
+question:
+  field: pillar
+  instructions: >-
+    You are coding one spoken contribution from a parliamentary debate. Decide
+    which institutional pillar the contribution primarily invokes when it
+    discusses artificial intelligence. Code only what the speaker says about
+    AI; ignore other topics in the contribution. If several pillars appear,
+    choose the one the speaker relies on most to make their argument.
+  options:
+    regulative: >-
+      AI is governed through rules, laws, regulation, enforcement, sanctions,
+      liability, compliance or oversight bodies. The speaker appeals to what is
+      legally required, permitted or punishable.
+    normative: >-
+      AI is governed through values, norms, ethics, duties or professional
+      standards. The speaker appeals to what is right, fair, responsible or
+      appropriate, or to obligations owed to others.
+    cultural_cognitive: >-
+      AI is understood through shared beliefs, taken-for-granted assumptions,
+      frames or comparisons with others. The speaker appeals to what is
+      inevitable, normal, or what other countries and organisations are doing.
+    residual: >-
+      The contribution is substantively about AI, but invokes none of the three
+      pillars, for example a purely technical, economic or anecdotal account.
+    not_relevant: >-
+      The contribution mentions AI only in passing, or is not about AI.
+
+model:
+  provider: openrouter_decision
+  model: typesafe/jev-1.14   # pinned: probabilities can shift between releases
+  temperature: 0.0
+
+# Pre-stated thresholds for the accommodation review (Table 1).
+thresholds:
+  reliability: 0.70
+  agreement: 0.70
+  residual: 0.20

@@ -11,7 +11,7 @@ Each document passes through the steps on its own:
 1. ``segment.*`` splits the transcript into speeches.
 2. ``filter.ai_terms`` keeps the speeches relevant to AI.
 3. ``code.codebook`` codes each kept speech against a codebook, one speech
-   per model call (see ``getref.run``).
+   per model call (see ``politicker_ref.run``).
 
 This mirrors, in small, the declarative pipeline definitions of the full
 infrastructure (``docs/declarative-definitions.md``). It omits that
@@ -31,7 +31,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .codebook import Codebook, load_codebook
 
-PLAN_FORMAT = "getref-pipeline/1"
+PLAN_FORMAT = "politicker-pipeline/1"
 
 
 class Strict(BaseModel):

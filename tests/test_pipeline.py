@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from getref.pipeline import (
+from politicker_ref.pipeline import (
     AiTermsFilter,
     CongressionalRecordSpeeches,
     HansardContributions,
@@ -13,8 +13,8 @@ from getref.pipeline import (
     execute,
     load_pipeline,
 )
-from getref.providers import ReplayProvider
-from getref.run import read_jsonl, run
+from politicker_ref.providers import ReplayProvider
+from politicker_ref.run import read_jsonl, run
 
 ROOT = Path(__file__).resolve().parents[1]
 PIPELINE = ROOT / "pipelines" / "ai-discourse-uk-us.yaml"

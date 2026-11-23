@@ -1,4 +1,4 @@
-"""Command-line interface: ``getref validate | run | pipeline | review``."""
+"""Command-line interface: ``politicker-ref validate | run | pipeline | review``."""
 
 from __future__ import annotations
 
@@ -9,11 +9,11 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from .accommodation import format_table, review
+from .accommodation import confusion_matrix, format_confusion, format_table, review
 from .codebook import load_codebook
 from .pipeline import execute, load_pipeline
 from .providers import ProviderError, ReplayProvider, make_provider
-from .run import read_jsonl, run, select_units
+from .run import read_jsonl, read_units, run, select_units
 
 
 def cmd_validate(args) -> int:
@@ -27,7 +27,7 @@ def cmd_validate(args) -> int:
 
 def cmd_run(args) -> int:
     codebook = load_codebook(args.codebook)
-    units = read_jsonl(args.units)
+    units = read_units(args.units)
     if args.only_codes:
         units = select_units(units, read_jsonl(args.from_outputs), args.only_codes.split(","))
     if args.limit:
@@ -79,12 +79,16 @@ def cmd_review(args) -> int:
     model = {r["unit_id"]: r["code"] for r in read_jsonl(args.outputs) if r["snapshot_hash"] == codebook.snapshot_hash()}
     if not model:
         print("Warning: no model outputs match this codebook snapshot", file=sys.stderr)
+    print("Accommodation report\n")
     print(format_table(review(codebook, a, b, model)))
+    shared = [u for u in sorted(set(a) & set(b)) if u in model]
+    print("\nConfusion matrix: reference human coder against the model\n")
+    print(format_confusion(confusion_matrix([a[u] for u in shared], [model[u] for u in shared], list(codebook.question.options))))
     return 0
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(prog="getref", description=__doc__)
+    parser = argparse.ArgumentParser(prog="politicker-ref", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
 
     p = sub.add_parser("validate", help="Validate a codebook and print its snapshot hash and schema")
@@ -93,7 +97,7 @@ def main(argv=None) -> int:
 
     p = sub.add_parser("run", help="Code units with a codebook, one unit per call")
     p.add_argument("codebook")
-    p.add_argument("units", help="JSONL file of text units")
+    p.add_argument("units", help="CSV or JSONL file of text units (needs unit_id and the codebook's state fields)")
     p.add_argument("--runs", default="runs", help="Output root (default: runs)")
     p.add_argument("--replay", help="Recorded outputs.jsonl to replay instead of calling a model")
     p.add_argument("--from-outputs", help="Earlier outputs.jsonl used with --only-codes")

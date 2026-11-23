@@ -5,7 +5,7 @@ import pytest
 import yaml
 from pydantic import ValidationError
 
-from getref.accommodation import (
+from politicker_ref.accommodation import (
     ACCOMMODATES,
     AMBIGUOUS,
     MISFIT,
@@ -15,14 +15,14 @@ from getref.accommodation import (
     interpret,
     review,
 )
-from getref.codebook import Codebook, load_codebook
-from getref.providers import (
+from politicker_ref.codebook import Codebook, load_codebook
+from politicker_ref.providers import (
     OpenAICompatibleProvider,
     OpenRouterDecisionProvider,
     ProviderError,
     ReplayProvider,
 )
-from getref.run import read_jsonl, run, select_units
+from politicker_ref.run import read_jsonl, run, select_units
 
 ROOT = Path(__file__).resolve().parents[1]
 CODEBOOK = ROOT / "codebooks" / "institutional-pillars-ai.yaml"
@@ -156,7 +156,7 @@ class ScriptedProvider:
         self.codes, self.failures, self.calls = codes, failures, 0
 
     def code(self, codebook, unit):
-        from getref.providers import Coding
+        from politicker_ref.providers import Coding
 
         self.calls += 1
         if self.failures:
@@ -235,3 +235,28 @@ def test_review_reports_codebook_and_each_construct(codebook):
     rows = review(codebook, a, dict(a), dict(a))
     assert [r.scope for r in rows] == ["codebook", "regulative", "normative", "cultural_cognitive"]
     assert rows[0].human_human_kappa == 1.0 and rows[0].interpretation == MISFIT  # 1 of 3 relevant is residual
+
+
+def test_precision_recall_f1_and_confusion_matrix():
+    from politicker_ref.accommodation import confusion_matrix, precision_recall_f1
+
+    ref = ["regulative", "regulative", "normative", "residual"]
+    pred = ["regulative", "normative", "normative", "regulative"]
+    p, r, f = precision_recall_f1(ref, pred, "regulative")
+    assert (p, r) == (0.5, 0.5) and f == pytest.approx(0.5)
+    assert precision_recall_f1(ref, pred, "cultural_cognitive") == (None, None, None)
+    matrix = confusion_matrix(ref, pred, ["regulative", "normative", "residual"])
+    assert matrix["regulative"] == {"regulative": 1, "normative": 1, "residual": 0}
+    assert matrix["residual"]["regulative"] == 1
+
+
+def test_units_can_be_read_from_csv(tmp_path):
+    from politicker_ref.run import read_units
+
+    path = tmp_path / "units.csv"
+    path.write_text("unit_id,debate_title,text\nu1,AI,We need a regulator.\n", encoding="utf-8")
+    assert read_units(path) == [{"unit_id": "u1", "debate_title": "AI", "text": "We need a regulator."}]
+    bad = tmp_path / "bad.csv"
+    bad.write_text("debate_title,text\nAI,x\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="unit_id"):
+        read_units(bad)

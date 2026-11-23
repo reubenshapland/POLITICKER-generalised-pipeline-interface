@@ -1,7 +1,7 @@
-"""Generate SYNTHETIC human codes and model outputs for demonstrating `getref review`.
+"""Generate SYNTHETIC human codes and model outputs for demonstrating `politicker-ref review`.
 
 These data are invented. No human has coded the sample yet: benchmark coding
-by two trained coders is Stage 2 work. The synthetic files exist only so that
+by trained coders is part of the planned demonstration. They exist only so that
 the review step can be run end to end and its output format inspected. They
 support no substantive conclusion.
 
@@ -20,7 +20,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from getref.codebook import load_codebook  # noqa: E402
+from politicker_ref.codebook import load_codebook  # noqa: E402
 
 SEED = 20261123
 AGREEMENT = 0.85  # probability that coder B (and the model) repeat coder A's code

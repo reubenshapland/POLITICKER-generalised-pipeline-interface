@@ -1,6 +1,6 @@
 {
-  "plan_hash": "9a970479ea110708785a4bd550f336ac1f0e8e86b470d7f39b69283b059a733e",
-  "format": "getref-pipeline/1",
+  "plan_hash": "a9507ecf39ee6cfcd297cb23b2f642fe0167f05acef1c36ec7abc44e74f7e43c",
+  "format": "politicker-pipeline/1",
   "pipeline": {
     "id": "ai-discourse-uk-us",
     "version": 1,
@@ -42,7 +42,7 @@
     "code.codebook": "1"
   },
   "codebook": {
-    "format": "getref-codebook/1",
+    "format": "politicker-codebook/1",
     "codebook": {
       "id": "institutional-pillars-ai",
       "version": 1,

@@ -16,6 +16,7 @@ such as those an earlier run coded as residual.
 
 from __future__ import annotations
 
+import csv
 import json
 import time
 from datetime import datetime, timezone
@@ -31,6 +32,23 @@ MAX_ATTEMPTS = 3
 def read_jsonl(path: str | Path) -> list[dict[str, Any]]:
     with open(path, encoding="utf-8") as handle:
         return [json.loads(line) for line in handle if line.strip()]
+
+
+def read_units(path: str | Path) -> list[dict[str, Any]]:
+    """Read text units from a CSV file (with a header row) or a JSONL file.
+
+    Every unit needs a ``unit_id`` column plus the fields the codebook lists in
+    ``state_fields``; any other columns are kept and ignored.
+    """
+    if str(path).lower().endswith(".csv"):
+        with open(path, encoding="utf-8-sig", newline="") as handle:
+            units = [dict(row) for row in csv.DictReader(handle)]
+    else:
+        units = read_jsonl(path)
+    missing = [i for i, u in enumerate(units, start=1) if not u.get("unit_id")]
+    if missing:
+        raise ValueError(f"{path}: rows {missing[:5]} have no unit_id")
+    return units
 
 
 def append_jsonl(path: Path, record: dict[str, Any]) -> None:

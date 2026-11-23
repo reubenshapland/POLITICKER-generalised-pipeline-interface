@@ -48,7 +48,7 @@ GOVINFO_HTML = "https://www.govinfo.gov/content/pkg/{package}/html/{granule}.htm
 AI_TITLE = re.compile(r"artificial intelligence|\bAI\b", re.I)
 
 session = requests.Session()
-session.headers["User-Agent"] = "getref-research-artifact/0.1 (academic research)"
+session.headers["User-Agent"] = "politicker-research-artifact/0.1 (academic research)"
 
 
 def get_json(url: str, **params):

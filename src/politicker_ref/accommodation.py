@@ -18,6 +18,10 @@ coding (the construct versus anything else); for the codebook as a whole it is
 computed on all codes. The agreed residual is the share of units that both
 human coders judge relevant to the phenomenon on which they also agree the
 unit fits no construct.
+
+Model performance against the reference human coder is also reported with
+precision, recall and F1 for each construct (Sokolova and Lapalme 2009), their
+unweighted (macro) averages for the codebook, and a confusion matrix.
 """
 
 from __future__ import annotations
@@ -65,6 +69,45 @@ def agreed_residual_share(coder_a: Sequence[str], coder_b: Sequence[str]) -> flo
     return sum(x == y == "residual" for x, y in relevant) / len(relevant)
 
 
+def precision_recall_f1(reference: Sequence[str], predicted: Sequence[str], label: str):
+    """Precision, recall and F1 of ``predicted`` for one label, against ``reference``.
+
+    Each value is None when undefined (no predictions, or no reference cases, of the label).
+    """
+    tp = sum(r == p == label for r, p in zip(reference, predicted))
+    predicted_n = sum(p == label for p in predicted)
+    reference_n = sum(r == label for r in reference)
+    precision = tp / predicted_n if predicted_n else None
+    recall = tp / reference_n if reference_n else None
+    if precision is None or recall is None:
+        f1 = None
+    else:
+        f1 = 0.0 if precision + recall == 0 else 2 * precision * recall / (precision + recall)
+    return precision, recall, f1
+
+
+def _macro(values) -> float | None:
+    values = [v for v in values if v is not None]
+    return sum(values) / len(values) if values else None
+
+
+def confusion_matrix(reference: Sequence[str], predicted: Sequence[str], labels: Sequence[str]) -> dict[str, dict[str, int]]:
+    """Counts keyed by reference label, then predicted label."""
+    matrix = {r: {p: 0 for p in labels} for r in labels}
+    for r, p in zip(reference, predicted):
+        if r in matrix and p in matrix[r]:
+            matrix[r][p] += 1
+    return matrix
+
+
+def format_confusion(matrix: dict[str, dict[str, int]]) -> str:
+    labels = list(matrix)
+    lines = ["| reference \\ model | " + " | ".join(labels) + " |", "|" + "---|" * (len(labels) + 1)]
+    for r in labels:
+        lines.append(f"| {r} | " + " | ".join(str(matrix[r][p]) for p in labels) + " |")
+    return "\n".join(lines)
+
+
 def interpret(hh: float | None, mh: float | None, residual: float | None, codebook: Codebook) -> str | None:
     t = codebook.thresholds
     if hh is None:
@@ -86,6 +129,9 @@ class Signals:
     model_human_kappa: float | None
     agreed_residual: float | None
     interpretation: str | None
+    precision: float | None = None
+    recall: float | None = None
+    f1: float | None = None
 
     def row(self) -> dict:
         return asdict(self)
@@ -112,21 +158,30 @@ def review(
     residual = agreed_residual_share(a, b)
 
     hh, mh = cohen_kappa(a, b), cohen_kappa(ref, m)
-    rows = [Signals("codebook", len(shared), hh, mh, residual, interpret(hh, mh, residual, codebook))]
+    construct_rows = []
     for construct in codebook.question.constructs:
         hh_c = cohen_kappa(binary(a, construct), binary(b, construct))
         mh_c = cohen_kappa(binary(ref, construct), binary(m, construct))
-        rows.append(Signals(construct, len(shared), hh_c, mh_c, residual, interpret(hh_c, mh_c, residual, codebook)))
-    return rows
+        p, r, f = precision_recall_f1(ref, m, construct)
+        construct_rows.append(
+            Signals(construct, len(shared), hh_c, mh_c, residual, interpret(hh_c, mh_c, residual, codebook), p, r, f)
+        )
+    overall = Signals(
+        "codebook", len(shared), hh, mh, residual, interpret(hh, mh, residual, codebook),
+        _macro(x.precision for x in construct_rows), _macro(x.recall for x in construct_rows), _macro(x.f1 for x in construct_rows),
+    )
+    return [overall, *construct_rows]
 
 
 def format_table(rows: list[Signals]) -> str:
     def fmt(v):
         return "n/a" if v is None else (f"{v:.2f}" if isinstance(v, float) else str(v))
 
-    header = ["scope", "units", "human-human kappa", "model-human kappa", "agreed residual", "interpretation"]
+    header = ["scope", "units", "human-human kappa", "model-human kappa", "agreed residual", "interpretation",
+              "precision", "recall", "F1"]
     lines = ["| " + " | ".join(header) + " |", "|" + "---|" * len(header)]
     for r in rows:
-        values = [r.scope, r.units, r.human_human_kappa, r.model_human_kappa, r.agreed_residual, r.interpretation]
+        values = [r.scope, r.units, r.human_human_kappa, r.model_human_kappa, r.agreed_residual, r.interpretation,
+                  r.precision, r.recall, r.f1]
         lines.append("| " + " | ".join(fmt(v) for v in values) + " |")
     return "\n".join(lines)

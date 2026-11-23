@@ -2,58 +2,48 @@
 
 ## What this repository is
 
-The research contribution of GET is a hosted interface. Through it, researchers without programming skills can apply theory-driven codebooks to large corpora, validate the coding against human coders, and review whether a theory accommodates a phenomenon. That interface is the main deliverable of the proposed development (Stage 2). It is not yet available.
+POLITICKER has three layers: data normalization, human coding and LLM coding. A working prototype of the data normalization and LLM coding layers is in use in two research projects, one in organizational science and one in political science. The prototype is part of a commercially developed system, so its code is not released.
 
-This repository is the proof of concept of its measurement core. It implements, in reference form, the mechanisms on which the interface will rest:
-- coding one unit per call
-- a constrained answer space
-- versioned codebook snapshots
-- iterative and subset reruns
-- per-output provenance
-- the accommodation review
+This repository is a standalone reference implementation of the measurement core. It shows how each layer works on public UK and US parliamentary transcripts, so that every step can be inspected and reproduced, and so that researchers can apply a codebook to text units they supply.
 
-It runs on public UK and US parliamentary transcripts, so every step can be inspected and reproduced.
+## How this repository relates to Table A1
 
-## What is public and what is not
+The first two columns reproduce Table A1 of the Technical Appendix, which reports the status of the POLITICKER prototype. The third column shows what this repository implements in reference form.
 
-| Component | In this repository |
-|---|---|
-| Codebook format, schema compilation and snapshot hashing | Yes |
-| Model providers: a decision model via OpenRouter; any OpenAI-compatible endpoint, including local open-weight models | Yes |
-| Reliability, agreed residual and Table 1 interpretation | Yes |
-| Public sample of 40 units and the script that drew it | Yes |
-| 23 UK and US transcripts, the script that collected them, and a miniature declarative pipeline that segments, filters and codes them | Yes |
-| Example codebook (institutional pillars) | Yes |
-| Recorded model outputs for the sample | Yes, once recorded |
-| Description of the declarative pipeline definitions | Yes; the production runtime is not included |
-| Acquisition and parsing of the four legislatures' records | No |
-| Normalization, orchestration, storage and the production runtime | No |
-| The hosted interface | No; planned |
+| Component | Status (Table A1) | Reference version in this repository |
+|---|---|---|
+| Coding schemes set through web forms and compiled into validated output schemas | Built | Codebook files compiled into validated output schemas |
+| Revert and rerun by batch, and reset of failed batches | Built | Resumable runs, and reruns on selected subsets of units |
+| Segment provenance (offsets, hash, segmenter version) and saved model requests and responses | Built | Codebook snapshot hash, model, served model version, probabilities and usage stored with every output |
+| Token usage and cost logging for each call | Built, Gemini only | Token usage stored with every output |
+| Line-referenced grounding of outputs | Built, except classification | Not applicable: each output is tied to one speech |
+| Per-job access control, API, and CSV export | Built | Not included |
+| Ingestion of the four legislatures (nine record series) | Built at document level | Small collection scripts for public UK and US records |
+| Common unit record with speaker, role, and setting | Planned | Unit records produced by the demonstration pipeline |
+| Speech- and turn-level segmentation | Specified, not built | Speech segmenters for UK Hansard and the US Congressional Record |
+| Model selection per job, open-weight models, and models from several families | Planned | A decision-model provider, and an OpenAI-compatible provider that includes local open-weight models |
+| Human coding interface, sampling with inclusion probabilities, and reliability reporting | Planned | Reliability reporting only |
+| Versioned codebooks, revision log, and accommodation reports | Planned | Versioned codebook snapshots and accommodation reports; no revision log |
+| Self-service accounts and document upload for the hosted service | Planned | Not included |
 
-The production components are excluded because they form a separate, commercially developed system. Nothing needed to reproduce the measurement is withheld. Anyone can rerun a codebook on the sample, or on their own text units, with any supported model, and compute every signal of the accommodation review.
+## What is not released, and why
 
-## Current state of the wider infrastructure
+The prototype's code is not released: the acquisition and parsing of the four legislatures' records, normalization, orchestration, storage and the interface. These form part of a separate, commercially developed system. Nothing needed to reproduce the measurement is withheld. Anyone can apply a codebook to the sample, or to their own text units, with any supported model, and compute every element of the accommodation report.
 
-| Component | Status |
-|---|---|
-| Ingestion of the four legislatures' proceedings | Built, at document level |
-| Configurable extraction with schema-constrained output, per-batch revert and rerun, and cost logging | Built, in an internal prototype |
-| Runtime for declarative pipeline definitions, with a decision model | In development; a first classification pipeline runs |
-| Speech-level segmentation | Planned |
-| Human coding interface, sampling with inclusion probabilities, reliability reporting | Planned |
-| Codebook revision log and accommodation reports | Planned |
-| Hosted interface with self-service access for researchers | Planned |
+## What we hope to do
 
-## Roadmap (Stage 2, January to May 2027)
+By early 2027, the plan is to complete POLITICKER and a demonstration that applies an institutional theory codebook to AI regulation discourse in four legislatures. The priorities are:
+1. speech-level segmentation, as the prototype codes segments of up to 30,000 characters
+2. the human coding layer
+3. per-job model selection, including open-weight models
+4. self-service hosted access
 
-1. Speech-level segmentation across the four legislatures, so that each coded unit is one contribution by one speaker.
-2. The human coding layer: a coding interface, samplers with stored inclusion probabilities, reliability reporting and the codebook revision log.
-3. Benchmark coding of a stratified sample by two trained coders, and model assessment against it, with decision models, open-weight models and models from several families.
-4. The demonstration: an institutional theory codebook applied to AI regulation discourse in the four legislatures, with three controls testing whether the review separates its categories.
-5. Hosted access for researchers, and a replication package for the demonstration archived with a DOI. The package will hold the benchmark sample, the human codes, the model outputs and the codebook revision logs.
+Three controls will test Table 1.
+
+As the demonstration is completed, this repository will add a replication package. It will contain the benchmark sample linked to its public source records, the human codes, the model outputs for the coded units, and the codebook revision logs. The repository will be archived with a DOI at each release. Academic researchers will have free access to the hosted coding interface.
 
 ## Licences
 
 - Code: [PolyForm Noncommercial 1.0.0](../LICENSE). Free for research, teaching and other non-commercial use.
 - Documentation and example codebooks: [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
-- Sample data: UK Parliament Hansard, under the [Open Parliament Licence v3.0](https://www.parliament.uk/site-information/copyright-parliament/open-parliament-licence/).
+- Data: UK Parliament material under the [Open Parliament Licence v3.0](https://www.parliament.uk/site-information/copyright-parliament/open-parliament-licence/); US Congressional Record material in the public domain.

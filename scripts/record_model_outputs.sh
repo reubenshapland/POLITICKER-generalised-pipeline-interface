@@ -20,8 +20,8 @@ fi
 python -m pip install -q -e ".[test]"
 python -m pytest -q
 
-getref run codebooks/institutional-pillars-ai.yaml data/sample_units.jsonl
-getref pipeline pipelines/ai-discourse-uk-us.yaml data/transcripts.jsonl
+politicker-ref run codebooks/institutional-pillars-ai.yaml data/sample_units.jsonl
+politicker-ref pipeline pipelines/ai-discourse-uk-us.yaml data/transcripts.jsonl
 
 git add runs
 git commit -m "Record Jev outputs for the sample and the demonstration pipeline"

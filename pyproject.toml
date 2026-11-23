@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "getref"
+name = "politicker-ref"
 version = "0.1.0"
-description = "Reference implementation of the measurement core of the General Extraction Tool (GET): codebook-driven coding of text units, versioned codebook snapshots, and the theoretical accommodation review."
+description = "Reference implementation of the measurement core of POLITICKER: codebook-driven coding of text units, versioned codebook snapshots, and the theoretical accommodation review."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
@@ -15,7 +15,7 @@ dependencies = ["pydantic>=2.5", "pyyaml>=6", "requests>=2.31"]
 test = ["pytest>=7"]
 
 [project.scripts]
-getref = "getref.cli:main"
+politicker-ref = "politicker_ref.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

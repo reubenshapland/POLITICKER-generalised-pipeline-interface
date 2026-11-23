@@ -22,7 +22,7 @@ from typing import Literal
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, create_model, model_validator
 
-SNAPSHOT_FORMAT = "getref-codebook/1"
+SNAPSHOT_FORMAT = "politicker-codebook/1"
 
 RESERVED_CODES = ("residual", "not_relevant")
 

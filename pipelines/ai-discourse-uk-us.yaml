@@ -4,7 +4,7 @@
 # names a registered strategy and its configuration.
 #
 # Run it with:
-#   getref pipeline pipelines/ai-discourse-uk-us.yaml data/transcripts.jsonl
+#   politicker-ref pipeline pipelines/ai-discourse-uk-us.yaml data/transcripts.jsonl
 
 id: ai-discourse-uk-us
 version: 1

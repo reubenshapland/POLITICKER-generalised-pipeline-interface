@@ -48,10 +48,10 @@ export OPENAI_COMPATIBLE_BASE_URL=http://localhost:11434/v1   # Ollama
 politicker-ref run my-codebook.yaml my_units.csv
 ```
 
-Reproduce recorded model outputs exactly, without an API key:
+Each run writes its outputs to `runs/<codebook-id>/<hash>/outputs.jsonl`, where `<hash>` identifies the codebook version. Reproduce a run exactly from those outputs, without calling the model again:
 
 ```bash
-politicker-ref run codebooks/institutional-pillars-ai.yaml data/sample_units.jsonl \
+politicker-ref run codebooks/institutional-pillars-ai.yaml my_units.csv \
   --replay runs/institutional-pillars-ai/<hash>/outputs.jsonl --runs /tmp/replay
 ```
 
@@ -64,7 +64,7 @@ politicker-ref pipeline pipelines/ai-discourse-uk-us.yaml data/transcripts.jsonl
 Rerun only the units an earlier run coded as residual, for example with a rival theory's codebook:
 
 ```bash
-politicker-ref run rival-codebook.yaml data/sample_units.jsonl \
+politicker-ref run rival-codebook.yaml my_units.csv \
   --from-outputs runs/institutional-pillars-ai/<hash>/outputs.jsonl --only-codes residual
 ```
 
@@ -90,8 +90,8 @@ politicker-ref review codebooks/institutional-pillars-ai.yaml \
 | `pipelines/` | The demonstration pipeline definition |
 | `data/transcripts.jsonl` | 23 transcripts: 12 UK Hansard debates and 11 US Congressional Record items, 2023 to 2025 |
 | `data/sample_units.jsonl` | 40 spoken contributions from the UK Commons and Lords, 2023 to 2025 |
-| `scripts/` | The fixed queries that drew the sample and the transcripts, and the script that records model outputs |
-| `runs/` | Recorded model outputs, unit records, and the codebook snapshots and pipeline plans that produced them |
+| `scripts/` | The fixed queries that drew the sample and the transcripts |
+| `runs/` | The unit records produced by the demonstration pipeline, with the frozen pipeline plan; model runs are written here too |
 | `examples/` | Synthetic human codes and model outputs for the review demonstration |
 | `docs/` | Mechanisms, pipeline definitions, the accommodation review, scope and roadmap |
 
